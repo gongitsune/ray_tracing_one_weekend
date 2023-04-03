@@ -1,5 +1,7 @@
 mod color;
+mod hittable;
 mod ray;
+mod sphere;
 mod vec;
 
 use anyhow::{Ok, Result};
