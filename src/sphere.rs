@@ -17,24 +17,24 @@ impl Hittable for Sphere {
         let c = oc.dot(&oc) - self.radius.powi(2);
 
         let discriminant = b.powi(2) - a * c;
-        if discriminant < 0.0 {
-            return None;
-        }
-        let sqrt_discriminant = discriminant.sqrt();
 
-        let root = (-b - sqrt_discriminant) / a;
-        if root < t_min || t_max < root {
-            let root = (-b + sqrt_discriminant) / a;
-            if root < t_min || t_max < root {
-                return None;
+        if discriminant > 0.0 {
+            let sqrt_discriminant = discriminant.sqrt();
+            let t = (-b - sqrt_discriminant) / a;
+
+            if t_min < t && t < t_max {
+                let point = ray.at(t);
+                let normal = (point - self.center) / self.radius;
+                return Some(HitRecord { point, normal, t });
+            }
+            let t = (-b + sqrt_discriminant) / a;
+            if t_min < t && t < t_max {
+                let point = ray.at(t);
+                let normal = (point - self.center) / self.radius;
+                return Some(HitRecord { point, normal, t });
             }
         }
 
-        let point = ray.at(root);
-        Some(HitRecord {
-            point,
-            normal: (point - self.center) / self.radius,
-            t: root,
-        })
+        None
     }
 }
