@@ -1,4 +1,5 @@
 mod color;
+mod ray;
 mod vec;
 
 use anyhow::{Ok, Result};
