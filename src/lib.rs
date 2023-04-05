@@ -88,7 +88,19 @@ pub fn draw<W: Write>(
     ]);
 
     // Camera
-    let camera = Camera::new(aspect_ratio, 2.0, 1.0, Vec3::new(0.0, 0.0, 0.0));
+    let look_from = Vec3::new(3.0, 3.0, 2.0);
+    let look_at = Vec3::new(0.0, 0.0, -1.0);
+    let focus_dist = (look_from - look_at).magnitude();
+    let aperture = 2.0;
+    let camera = Camera::new(
+        look_from,
+        look_at,
+        Vec3::new(0.0, 1.0, 0.0),
+        20.0,
+        aspect_ratio,
+        aperture,
+        focus_dist,
+    );
 
     // Render
     writeln!(writer, "P3\n{} {}\n255", img_width, img_height)?;
