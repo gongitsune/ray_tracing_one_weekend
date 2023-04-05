@@ -25,7 +25,7 @@ fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: usize) -> Color {
         return Color::new(0.0, 0.0, 0.0);
     }
 
-    if let Some(hit) = world.hit(ray, 0.0, INFINITY) {
+    if let Some(hit) = world.hit(ray, 0.001, INFINITY) {
         let target = hit.point + hit.normal + random_in_unit_sphere();
         return 0.5 * ray_color(&Ray::new(hit.point, target - hit.point), world, depth - 1);
     }
