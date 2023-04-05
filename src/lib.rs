@@ -6,16 +6,20 @@ mod vec;
 
 use anyhow::{Ok, Result};
 use color::write_color;
+use hittable::{Hittable, HittableList};
 use indicatif::ProgressBar;
 use ray::Ray;
-use std::io::{BufWriter, Write};
+use sphere::Sphere;
+use std::{
+    f64::INFINITY,
+    io::{BufWriter, Write},
+    sync::Arc,
+};
 use vec::{Color, Vec3};
 
-fn ray_color(ray: &Ray) -> Color {
-    let t = hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, ray);
-    if t > 0.0 {
-        let n = (ray.at(t) - Vec3::new(0.0, 0.0, -1.0)).normalize();
-        return 0.5 * Color::new(n.x + 1.0, n.y + 1.0, n.z + 1.0);
+fn ray_color<H: Hittable>(ray: &Ray, world: &H) -> Color {
+    if let Some(hit) = world.hit(ray, 0.0, INFINITY) {
+        return 0.5 * (hit.normal + Color::new(1.0, 1.0, 1.0));
     }
 
     let unit_dir = ray.direction().normalize();
@@ -48,6 +52,12 @@ pub fn draw<W: Write>(
     // Progress
     let pb = ProgressBar::new(img_height as u64);
 
+    // World
+    let world = HittableList::new(vec![
+        Arc::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)),
+        Arc::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0)),
+    ]);
+
     // Camera
     let viewport_height = 2.0;
     let viewport_width = aspect_ratio * viewport_height;
@@ -72,7 +82,7 @@ pub fn draw<W: Write>(
                 origin,
                 lower_left_corner + u * horizontal + v * vertical - origin,
             );
-            let pixel_color = ray_color(&ray);
+            let pixel_color = ray_color(&ray, &world);
             write_color(writer, pixel_color)?;
         }
     }
