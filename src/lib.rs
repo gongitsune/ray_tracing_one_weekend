@@ -18,11 +18,16 @@ use std::{
     io::{BufWriter, Write},
     sync::Arc,
 };
-use vec::{Color, Vec3};
+use vec::{random_in_unit_sphere, Color, Vec3};
 
-fn ray_color<H: Hittable>(ray: &Ray, world: &H) -> Color {
+fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: usize) -> Color {
+    if depth <= 0 {
+        return Color::new(0.0, 0.0, 0.0);
+    }
+
     if let Some(hit) = world.hit(ray, 0.0, INFINITY) {
-        return 0.5 * (hit.normal + Color::new(1.0, 1.0, 1.0));
+        let target = hit.point + hit.normal + random_in_unit_sphere();
+        return 0.5 * ray_color(&Ray::new(hit.point, target - hit.point), world, depth - 1);
     }
 
     let unit_dir = ray.direction().normalize();
@@ -34,6 +39,7 @@ pub fn draw<W: Write>(
     aspect_ratio: f64,
     img_width: usize,
     samples_per_pixel: usize,
+    max_depth: usize,
     writer: &mut BufWriter<W>,
 ) -> Result<()> {
     let mut rng = rand::thread_rng();
@@ -64,7 +70,7 @@ pub fn draw<W: Write>(
                 let v = (j as f64 + rng.gen::<f64>()) / (img_height - 1) as f64;
 
                 let ray = camera.get_ray(u, v);
-                color + ray_color(&ray, &world)
+                color + ray_color(&ray, &world, max_depth)
             });
             write_color(writer, pixel_color, samples_per_pixel)?;
         }
