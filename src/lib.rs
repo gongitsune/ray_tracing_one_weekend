@@ -3,22 +3,22 @@ mod color;
 mod hittable;
 mod material;
 mod ray;
+mod scene;
 mod sphere;
 mod vec;
 
 use anyhow::{Ok, Result};
 use camera::Camera;
 use color::write_color;
-use hittable::{Hittable, HittableList};
+use hittable::Hittable;
 use indicatif::ProgressBar;
-use material::{Dielectric, Lambertian, Metal};
 use rand::Rng;
 use ray::Ray;
+use scene::random_scene;
 use sphere::Sphere;
 use std::{
     f64::INFINITY,
     io::{BufWriter, Write},
-    sync::Arc,
 };
 use vec::{Color, Vec3};
 
@@ -55,43 +55,13 @@ pub fn draw<W: Write>(
     let pb = ProgressBar::new(img_height as u64);
 
     // World
-    let world = HittableList::new(vec![
-        // Ground
-        Arc::new(Sphere::new(
-            Vec3::new(0.0, -100.5, -1.0),
-            100.0,
-            Lambertian::new(Color::new(0.8, 0.8, 0.0)),
-        )),
-        // Center
-        Arc::new(Sphere::new(
-            Vec3::new(0.0, 0.0, -1.0),
-            0.5,
-            Lambertian::new(Color::new(0.1, 0.2, 0.5)),
-        )),
-        // Left
-        Arc::new(Sphere::new(
-            Vec3::new(-1.0, 0.0, -1.0),
-            0.5,
-            Dielectric::new(1.5),
-        )),
-        Arc::new(Sphere::new(
-            Vec3::new(-1.0, 0.0, -1.0),
-            -0.4,
-            Dielectric::new(1.5),
-        )),
-        // Right
-        Arc::new(Sphere::new(
-            Vec3::new(1.0, 0.0, -1.0),
-            0.5,
-            Metal::new(Color::new(0.8, 0.6, 0.2), 0.0),
-        )),
-    ]);
+    let world = random_scene();
 
     // Camera
-    let look_from = Vec3::new(3.0, 3.0, 2.0);
-    let look_at = Vec3::new(0.0, 0.0, -1.0);
+    let look_from = Vec3::new(13.0, 2.0, 3.0);
+    let look_at = Vec3::new(0.0, 0.0, 0.0);
     let focus_dist = (look_from - look_at).magnitude();
-    let aperture = 2.0;
+    let aperture = 0.1;
     let camera = Camera::new(
         look_from,
         look_at,
