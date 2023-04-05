@@ -66,7 +66,7 @@ pub fn draw<W: Write>(
         Arc::new(Sphere::new(
             Vec3::new(0.0, 0.0, -1.0),
             0.5,
-            Dielectric::new(1.5),
+            Lambertian::new(Color::new(0.1, 0.2, 0.5)),
         )),
         // Left
         Arc::new(Sphere::new(
@@ -74,11 +74,16 @@ pub fn draw<W: Write>(
             0.5,
             Dielectric::new(1.5),
         )),
+        Arc::new(Sphere::new(
+            Vec3::new(-1.0, 0.0, -1.0),
+            -0.4,
+            Dielectric::new(1.5),
+        )),
         // Right
         Arc::new(Sphere::new(
             Vec3::new(1.0, 0.0, -1.0),
             0.5,
-            Metal::new(Color::new(0.8, 0.6, 0.2), 1.0),
+            Metal::new(Color::new(0.8, 0.6, 0.2), 0.0),
         )),
     ]);
 

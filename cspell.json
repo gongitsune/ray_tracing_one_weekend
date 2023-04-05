@@ -5,6 +5,7 @@
     "indicatif",
     "Lambertian",
     "nalgebra",
-    "powi"
+    "powi",
+    "schlick"
   ]
 }
