@@ -11,7 +11,7 @@ use camera::Camera;
 use color::write_color;
 use hittable::{Hittable, HittableList};
 use indicatif::ProgressBar;
-use material::{Lambertian, Metal};
+use material::{Dielectric, Lambertian, Metal};
 use rand::Rng;
 use ray::Ray;
 use sphere::Sphere;
@@ -66,13 +66,13 @@ pub fn draw<W: Write>(
         Arc::new(Sphere::new(
             Vec3::new(0.0, 0.0, -1.0),
             0.5,
-            Lambertian::new(Color::new(0.7, 0.3, 0.3)),
+            Dielectric::new(1.5),
         )),
         // Left
         Arc::new(Sphere::new(
             Vec3::new(-1.0, 0.0, -1.0),
             0.5,
-            Metal::new(Color::new(0.8, 0.8, 0.8), 0.3),
+            Dielectric::new(1.5),
         )),
         // Right
         Arc::new(Sphere::new(
