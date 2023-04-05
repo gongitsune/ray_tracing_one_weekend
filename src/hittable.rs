@@ -1,27 +1,28 @@
-use crate::{ray::Ray, vec::Vec3};
+use crate::{material::Material, ray::Ray, vec::Vec3};
 use std::sync::Arc;
 
-pub struct HitRecord {
+pub struct HitRecord<'a> {
     pub point: Vec3,
     pub normal: Vec3,
     pub t: f64,
+    pub material: &'a dyn Material,
 }
 
 pub trait Hittable {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
 
-pub struct HittableList<H: Hittable> {
-    pub objects: Vec<Arc<H>>,
+pub struct HittableList {
+    pub objects: Vec<Arc<dyn Hittable>>,
 }
 
-impl<H: Hittable> HittableList<H> {
-    pub fn new(list: Vec<Arc<H>>) -> Self {
+impl HittableList {
+    pub fn new(list: Vec<Arc<dyn Hittable>>) -> Self {
         Self { objects: list }
     }
 }
 
-impl<H: Hittable> Hittable for HittableList<H> {
+impl Hittable for HittableList {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let mut closest_so_far = t_max;
         let mut hit_anything = None;

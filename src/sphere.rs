@@ -1,21 +1,27 @@
 use crate::{
     hittable::{HitRecord, Hittable},
+    material::Material,
     ray::Ray,
     vec::Vec3,
 };
 
-pub struct Sphere {
+pub struct Sphere<M: Material> {
     center: Vec3,
     radius: f64,
+    material: M,
 }
 
-impl Sphere {
-    pub fn new(center: Vec3, radius: f64) -> Self {
-        Self { center, radius }
+impl<M: Material> Sphere<M> {
+    pub fn new(center: Vec3, radius: f64, material: M) -> Self {
+        Self {
+            center,
+            radius,
+            material,
+        }
     }
 }
 
-impl Hittable for Sphere {
+impl<M: Material> Hittable for Sphere<M> {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc = ray.origin() - self.center;
         let a = ray.direction().dot(&ray.direction());
@@ -31,13 +37,23 @@ impl Hittable for Sphere {
             if t_min < t && t < t_max {
                 let point = ray.at(t);
                 let normal = (point - self.center) / self.radius;
-                return Some(HitRecord { point, normal, t });
+                return Some(HitRecord {
+                    point,
+                    normal,
+                    t,
+                    material: &self.material,
+                });
             }
             let t = (-b + sqrt_discriminant) / a;
             if t_min < t && t < t_max {
                 let point = ray.at(t);
                 let normal = (point - self.center) / self.radius;
-                return Some(HitRecord { point, normal, t });
+                return Some(HitRecord {
+                    point,
+                    normal,
+                    t,
+                    material: &self.material,
+                });
             }
         }
 

@@ -1,6 +1,7 @@
 mod camera;
 mod color;
 mod hittable;
+mod material;
 mod ray;
 mod sphere;
 mod vec;
@@ -10,6 +11,7 @@ use camera::Camera;
 use color::write_color;
 use hittable::{Hittable, HittableList};
 use indicatif::ProgressBar;
+use material::{Lambertian, Metal};
 use rand::Rng;
 use ray::Ray;
 use sphere::Sphere;
@@ -18,7 +20,7 @@ use std::{
     io::{BufWriter, Write},
     sync::Arc,
 };
-use vec::{random_in_unit_sphere, Color, Vec3};
+use vec::{Color, Vec3};
 
 fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: usize) -> Color {
     if depth <= 0 {
@@ -26,8 +28,10 @@ fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: usize) -> Color {
     }
 
     if let Some(hit) = world.hit(ray, 0.001, INFINITY) {
-        let target = hit.point + hit.normal + random_in_unit_sphere();
-        return 0.5 * ray_color(&Ray::new(hit.point, target - hit.point), world, depth - 1);
+        if let Some((scattered, attenuation)) = hit.material.scatter(ray, &hit) {
+            return attenuation.zip_map(&ray_color(&scattered, world, depth - 1), |l, r| l * r);
+        }
+        return Color::zeros();
     }
 
     let unit_dir = ray.direction().normalize();
@@ -52,8 +56,30 @@ pub fn draw<W: Write>(
 
     // World
     let world = HittableList::new(vec![
-        Arc::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)),
-        Arc::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0)),
+        // Ground
+        Arc::new(Sphere::new(
+            Vec3::new(0.0, -100.5, -1.0),
+            100.0,
+            Lambertian::new(Color::new(0.8, 0.8, 0.0)),
+        )),
+        // Center
+        Arc::new(Sphere::new(
+            Vec3::new(0.0, 0.0, -1.0),
+            0.5,
+            Lambertian::new(Color::new(0.7, 0.3, 0.3)),
+        )),
+        // Left
+        Arc::new(Sphere::new(
+            Vec3::new(-1.0, 0.0, -1.0),
+            0.5,
+            Metal::new(Color::new(0.8, 0.8, 0.8)),
+        )),
+        // Right
+        Arc::new(Sphere::new(
+            Vec3::new(1.0, 0.0, -1.0),
+            0.5,
+            Metal::new(Color::new(0.8, 0.6, 0.2)),
+        )),
     ]);
 
     // Camera
