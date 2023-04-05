@@ -18,9 +18,9 @@ pub fn write_color<W: Write>(
     writeln!(
         writer,
         "{} {} {}",
-        cast(pixel_color.x * scale),
-        cast(pixel_color.y * scale),
-        cast(pixel_color.z * scale)
+        cast((pixel_color.x * scale).sqrt()),
+        cast((pixel_color.y * scale).sqrt()),
+        cast((pixel_color.z * scale).sqrt())
     )?;
 
     Ok(())
