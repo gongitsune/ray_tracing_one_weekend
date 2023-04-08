@@ -1,7 +1,7 @@
 mod camera;
 mod color;
 mod hittable;
-mod material;
+mod materials;
 mod ray;
 mod scene;
 mod sphere;
@@ -74,7 +74,6 @@ pub fn draw<W: Write>(
 
     // Render
     writeln!(writer, "P3\n{} {}\n255", img_width, img_height)?;
-
     for j in (0..img_height).rev() {
         pb.inc(1);
         for i in 0..img_width {

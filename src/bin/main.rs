@@ -16,7 +16,7 @@ fn main() -> Result<()> {
         .open(&path)?;
     let mut writer = BufWriter::new(file);
 
-    draw(3.0 / 2.0, 1200, 500, 50, &mut writer)?;
+    draw(3.0 / 2.0, 256, 500, 50, &mut writer)?;
 
     writer.flush()?;
     Ok(())

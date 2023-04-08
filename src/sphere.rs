@@ -1,6 +1,6 @@
 use crate::{
     hittable::{HitRecord, Hittable},
-    material::Material,
+    materials::Material,
     ray::Ray,
     vec::Vec3,
 };
@@ -21,7 +21,7 @@ impl<M: Material> Sphere<M> {
     }
 }
 
-impl<M: Material> Hittable for Sphere<M> {
+impl<M: Material + Sync> Hittable for Sphere<M> {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc = ray.origin() - self.center;
         let a = ray.direction().dot(&ray.direction());

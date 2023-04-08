@@ -1,5 +1,4 @@
-use crate::{material::Material, ray::Ray, vec::Vec3};
-use std::sync::Arc;
+use crate::{materials::Material, ray::Ray, vec::Vec3};
 
 pub struct HitRecord<'a> {
     pub point: Vec3,
@@ -8,17 +7,18 @@ pub struct HitRecord<'a> {
     pub material: &'a dyn Material,
 }
 
-pub trait Hittable {
+pub trait Hittable: Sync {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
 
+#[derive(Default)]
 pub struct HittableList {
-    pub objects: Vec<Arc<dyn Hittable>>,
+    pub objects: Vec<Box<dyn Hittable>>,
 }
 
 impl HittableList {
-    pub fn new(list: Vec<Arc<dyn Hittable>>) -> Self {
-        Self { objects: list }
+    pub fn push(&mut self, hittable: impl Hittable + 'static) {
+        self.objects.push(Box::new(hittable))
     }
 }
 
