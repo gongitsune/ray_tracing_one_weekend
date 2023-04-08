@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.70"
+clap = { version = "4.2.1", features = ["derive"] }
 indicatif = { version = "0.17.3", features = ["rayon"] }
 nalgebra = "0.32.2"
 rand = "0.8.5"

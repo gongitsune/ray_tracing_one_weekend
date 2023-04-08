@@ -5,9 +5,12 @@ use std::{
 };
 
 use anyhow::{Ok, Result};
-use ray_tracing_one_weekend::draw;
+use clap::Parser;
+use ray_tracing_one_weekend::{cli::Cli, draw};
 
 fn main() -> Result<()> {
+    let cli = Cli::parse();
+
     let path = Path::new("image.ppm");
     let file = OpenOptions::new()
         .create(true)
@@ -16,7 +19,7 @@ fn main() -> Result<()> {
         .open(&path)?;
     let mut writer = BufWriter::new(file);
 
-    draw(3.0 / 2.0, 256, 500, 50, &mut writer)?;
+    draw(3.0 / 2.0, cli.width, cli.samples, cli.depth, &mut writer)?;
 
     writer.flush()?;
     Ok(())

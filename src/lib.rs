@@ -1,4 +1,5 @@
 mod camera;
+pub mod cli;
 mod hittable;
 mod materials;
 mod ray;
