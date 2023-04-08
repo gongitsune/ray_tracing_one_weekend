@@ -1,5 +1,4 @@
 mod camera;
-mod color;
 mod hittable;
 mod materials;
 mod ray;
@@ -9,11 +8,11 @@ mod vec;
 
 use anyhow::{Ok, Result};
 use camera::Camera;
-use color::write_color;
 use hittable::Hittable;
-use indicatif::ProgressBar;
+use indicatif::{ParallelProgressIterator, ProgressBar};
 use rand::Rng;
 use ray::Ray;
+use rayon::prelude::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
 use scene::random_scene;
 use sphere::Sphere;
 use std::{
@@ -46,8 +45,6 @@ pub fn draw<W: Write>(
     max_depth: usize,
     writer: &mut BufWriter<W>,
 ) -> Result<()> {
-    let mut rng = rand::thread_rng();
-
     // Image
     let img_height = (img_width as f64 / aspect_ratio) as usize;
 
@@ -74,18 +71,33 @@ pub fn draw<W: Write>(
 
     // Render
     writeln!(writer, "P3\n{} {}\n255", img_width, img_height)?;
-    for j in (0..img_height).rev() {
-        pb.inc(1);
-        for i in 0..img_width {
-            let pixel_color = (0..samples_per_pixel).fold(Vec3::new(0.0, 0.0, 0.0), |color, _| {
-                let u = (i as f64 + rng.gen::<f64>()) / (img_width - 1) as f64;
-                let v = (j as f64 + rng.gen::<f64>()) / (img_height - 1) as f64;
+    let image = (0..img_height)
+        .into_par_iter()
+        .rev()
+        .progress_count(img_height as u64)
+        .flat_map(|y| {
+            (0..img_width)
+                .flat_map(|x| {
+                    let col: Vec3 = (0..samples_per_pixel)
+                        .map(|_| {
+                            let mut rng = rand::thread_rng();
+                            let u = (x as f64 + rng.gen::<f64>()) / (img_width - 1) as f64;
+                            let v = (y as f64 + rng.gen::<f64>()) / (img_height - 1) as f64;
 
-                let ray = camera.get_ray(u, v);
-                color + ray_color(&ray, &world, max_depth)
-            });
-            write_color(writer, pixel_color, samples_per_pixel)?;
-        }
+                            let ray = camera.get_ray(u, v);
+                            ray_color(&ray, &world, max_depth)
+                        })
+                        .sum();
+                    let scale = 1.0 / samples_per_pixel as f64;
+                    col.iter()
+                        .map(|c| (256.0 * (c * scale).sqrt().clamp(0.0, 0.999)) as u8)
+                        .collect::<Vec<u8>>()
+                })
+                .collect::<Vec<u8>>()
+        })
+        .collect::<Vec<u8>>();
+    for col in image.chunks(3) {
+        writeln!(writer, "{} {} {}", col[0], col[1], col[2])?;
     }
 
     pb.finish();
