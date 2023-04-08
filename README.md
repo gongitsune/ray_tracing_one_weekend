@@ -13,16 +13,45 @@ I used [`indicatif`](https://github.com/console-rs/indicatif) to check progress.
 First, download the latest executable from Release and place `raytra` or `raytra.exe` in any directory.
 
 - Simple run
-  ```shell
-  raytra
+
+  Bash
+
+  ```bash
+  ./raytra
   ```
+
+  PowerShell
+
+  ```ps
+  .\raytra.exe
+  ```
+
 - Helps
-  ```shell
-  raytra --help
+
+  Bash
+
+  ```bash
+  ./raytra --help
   ```
+
+  PowerShell
+
+  ```ps
+  .\raytra.exe --help
+  ```
+
 - Options -> ImageWidth: 512px, SamplesPerPixel: 50, MaxDeps: 100
-  ```shell
-  raytra -w 512 -s 50 -d 100
+
+  Bash
+
+  ```bash
+  ./raytra -w 512 -s 50 -d 100
+  ```
+
+  PowerShell
+
+  ```ps
+  .\raytra.exe -w 512 -s 50 -d 100
   ```
 
 ![Ray Tracing](https://raytracing.github.io/images/img-1.21-book1-final.jpg)
