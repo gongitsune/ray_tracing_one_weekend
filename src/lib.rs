@@ -17,7 +17,7 @@ use rayon::prelude::{IndexedParallelIterator, IntoParallelIterator, ParallelIter
 use scene::random_scene;
 use sphere::Sphere;
 use std::{
-    f64::INFINITY,
+    f32::INFINITY,
     io::{BufWriter, Write},
 };
 use vec::{Color, Vec3};
@@ -47,7 +47,7 @@ pub fn draw<W: Write>(
     writer: &mut BufWriter<W>,
 ) -> Result<()> {
     // Image
-    let aspect_ratio = img_width as f64 / img_height as f64;
+    let aspect_ratio = img_width as f32 / img_height as f32;
 
     // Progress
     let pb = ProgressBar::new(img_height as u64);
@@ -82,14 +82,14 @@ pub fn draw<W: Write>(
                     let col: Vec3 = (0..samples_per_pixel)
                         .map(|_| {
                             let mut rng = rand::thread_rng();
-                            let u = (x as f64 + rng.gen::<f64>()) / (img_width - 1) as f64;
-                            let v = (y as f64 + rng.gen::<f64>()) / (img_height - 1) as f64;
+                            let u = (x as f32 + rng.gen::<f32>()) / (img_width - 1) as f32;
+                            let v = (y as f32 + rng.gen::<f32>()) / (img_height - 1) as f32;
 
                             let ray = camera.get_ray(u, v);
                             ray_color(&ray, &world, max_depth)
                         })
                         .sum();
-                    let scale = 1.0 / samples_per_pixel as f64;
+                    let scale = 1.0 / samples_per_pixel as f32;
                     col.iter()
                         .map(|c| (256.0 * (c * scale).sqrt().clamp(0.0, 0.999)) as u8)
                         .collect::<Vec<u8>>()

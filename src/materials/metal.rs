@@ -4,11 +4,11 @@ use super::{random_in_unit_sphere, reflect, Material};
 
 pub struct Metal {
     albedo: Color,
-    fuzzy: f64,
+    fuzzy: f32,
 }
 
 impl Metal {
-    pub fn new(albedo: Color, fuzzy: f64) -> Self {
+    pub fn new(albedo: Color, fuzzy: f32) -> Self {
         Self {
             albedo,
             fuzzy: fuzzy.min(1.0),

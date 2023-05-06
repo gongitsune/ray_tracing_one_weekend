@@ -8,11 +8,11 @@ use rand::Rng;
 use super::{reflect, refract, schlick, Material};
 
 pub struct Dielectric {
-    ref_idx: f64,
+    ref_idx: f32,
 }
 
 impl Dielectric {
-    pub fn new(index_of_refraction: f64) -> Self {
+    pub fn new(index_of_refraction: f32) -> Self {
         Self {
             ref_idx: index_of_refraction,
         }
@@ -32,7 +32,7 @@ impl Material for Dielectric {
         };
         if let Some(refracted) = refract(&ray.direction(), &outward_normal, ni_over_nt) {
             let refract_prob = schlick(cosine, self.ref_idx);
-            if rand::thread_rng().gen::<f64>() >= refract_prob {
+            if rand::thread_rng().gen::<f32>() >= refract_prob {
                 let scattered = Ray::new(hit.point, refracted);
                 return Some((scattered, attenuation));
             }

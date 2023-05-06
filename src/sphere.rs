@@ -7,12 +7,12 @@ use crate::{
 
 pub struct Sphere<M: Material> {
     center: Vec3,
-    radius: f64,
+    radius: f32,
     material: M,
 }
 
 impl<M: Material> Sphere<M> {
-    pub fn new(center: Vec3, radius: f64, material: M) -> Self {
+    pub fn new(center: Vec3, radius: f32, material: M) -> Self {
         Self {
             center,
             radius,
@@ -22,7 +22,7 @@ impl<M: Material> Sphere<M> {
 }
 
 impl<M: Material + Sync> Hittable for Sphere<M> {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let oc = ray.origin() - self.center;
         let a = ray.direction().dot(&ray.direction());
         let b = oc.dot(&ray.direction());
