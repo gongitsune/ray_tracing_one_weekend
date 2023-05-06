@@ -19,7 +19,7 @@ fn main() -> Result<()> {
         .open(&path)?;
     let mut writer = BufWriter::new(file);
 
-    draw(3.0 / 2.0, cli.width, cli.samples, cli.depth, &mut writer)?;
+    draw(cli.height, cli.width, cli.samples, cli.depth, &mut writer)?;
 
     writer.flush()?;
     Ok(())

@@ -40,14 +40,14 @@ fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: usize) -> Color {
 }
 
 pub fn draw<W: Write>(
-    aspect_ratio: f64,
+    img_height: usize,
     img_width: usize,
     samples_per_pixel: usize,
     max_depth: usize,
     writer: &mut BufWriter<W>,
 ) -> Result<()> {
     // Image
-    let img_height = (img_width as f64 / aspect_ratio) as usize;
+    let aspect_ratio = img_width as f64 / img_height as f64;
 
     // Progress
     let pb = ProgressBar::new(img_height as u64);
