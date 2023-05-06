@@ -24,15 +24,13 @@ impl HittableList {
 
 impl Hittable for HittableList {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
-        let mut closest_so_far = t_max;
-        let mut hit_anything = None;
-
-        for object in &self.objects {
-            if let Some(hit) = object.hit(ray, t_min, closest_so_far) {
-                closest_so_far = hit.t;
-                hit_anything = Some(hit);
+        let (_, hit_anything) = self.objects.iter().fold((t_max, None), |mut a, obj| {
+            if let Some(hit) = obj.hit(ray, t_min, a.0) {
+                a.0 = hit.t;
+                a.1 = Some(hit);
             }
-        }
+            a
+        });
 
         hit_anything
     }
