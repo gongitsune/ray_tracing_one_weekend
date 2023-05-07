@@ -10,7 +10,7 @@ mod vec;
 use anyhow::{Ok, Result};
 use camera::Camera;
 use hittable::Hittable;
-use indicatif::{ParallelProgressIterator, ProgressBar};
+use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use rand::Rng;
 use ray::Ray;
 use rayon::prelude::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
@@ -50,7 +50,17 @@ pub fn draw<W: Write>(
     let aspect_ratio = img_width as f32 / img_height as f32;
 
     // Progress
-    let pb = ProgressBar::new(img_height as u64);
+    let multi_pb = MultiProgress::new();
+    let sub_pb_style =
+        ProgressStyle::with_template("           ┣ {wide_bar:.cyan/blue} {pos:>7}/{len:7} {msg}")?
+            .progress_chars("##-");
+    let main_pb = multi_pb.add(ProgressBar::new(img_height as u64));
+    main_pb.set_style(
+        ProgressStyle::with_template(
+            "[{elapsed_precise}] ┏ {wide_bar:.cyan/blue} {pos:>7}/{len:7} {msg}",
+        )?
+        .progress_chars("##-"),
+    );
 
     // World
     let world = random_scene();
@@ -71,14 +81,18 @@ pub fn draw<W: Write>(
     );
 
     // Render
+    multi_pb.println("✨ Generating...")?;
     writeln!(writer, "P3\n{} {}\n255", img_width, img_height)?;
     let image = (0..img_height)
         .into_par_iter()
         .rev()
-        .progress_count(img_height as u64)
         .flat_map(|y| {
+            main_pb.inc(1);
+            let width_pb = multi_pb.add(ProgressBar::new(img_width as u64));
+            width_pb.set_style(sub_pb_style.clone());
             (0..img_width)
                 .flat_map(|x| {
+                    width_pb.inc(1);
                     let col: Vec3 = (0..samples_per_pixel)
                         .map(|_| {
                             let mut rng = rand::thread_rng();
@@ -101,7 +115,8 @@ pub fn draw<W: Write>(
         writeln!(writer, "{} {} {}", col[0], col[1], col[2])?;
     }
 
-    pb.finish();
+    main_pb.abandon_with_message("Generated.");
+    multi_pb.println("🍻 Done!!")?;
 
     Ok(())
 }
