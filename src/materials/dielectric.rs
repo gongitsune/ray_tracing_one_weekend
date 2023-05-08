@@ -3,7 +3,7 @@ use crate::{
     ray::Ray,
     vec::{Color, Vec3},
 };
-use rand::Rng;
+use rand::{rngs::ThreadRng, Rng};
 
 use super::{reflect, refract, schlick, Material};
 
@@ -20,7 +20,7 @@ impl Dielectric {
 }
 
 impl Material for Dielectric {
-    fn scatter(&self, ray: &Ray, hit: &HitRecord) -> Option<(Ray, Color)> {
+    fn scatter(&self, ray: &Ray, hit: &HitRecord, rng: &mut ThreadRng) -> Option<(Ray, Color)> {
         let attenuation = Vec3::new(1.0, 1.0, 1.0);
         let (outward_normal, ni_over_nt, cosine) = if ray.direction().dot(&hit.normal) > 0.0 {
             let cosine =
@@ -32,7 +32,7 @@ impl Material for Dielectric {
         };
         if let Some(refracted) = refract(&ray.direction(), &outward_normal, ni_over_nt) {
             let refract_prob = schlick(cosine, self.ref_idx);
-            if rand::thread_rng().gen::<f32>() >= refract_prob {
+            if rng.gen::<f32>() >= refract_prob {
                 let scattered = Ray::new(hit.point, refracted);
                 return Some((scattered, attenuation));
             }

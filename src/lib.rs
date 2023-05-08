@@ -11,7 +11,7 @@ use anyhow::{Ok, Result};
 use camera::Camera;
 use hittable::Hittable;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
-use rand::Rng;
+use rand::{rngs::ThreadRng, Rng};
 use ray::Ray;
 use rayon::prelude::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
 use scene::random_scene;
@@ -22,14 +22,15 @@ use std::{
 };
 use vec::{Color, Vec3};
 
-fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: usize) -> Color {
+fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: usize, rng: &mut ThreadRng) -> Color {
     if depth <= 0 {
         return Color::new(0.0, 0.0, 0.0);
     }
 
     if let Some(hit) = world.hit(ray, 0.001, INFINITY) {
-        if let Some((scattered, attenuation)) = hit.material.scatter(ray, &hit) {
-            return attenuation.zip_map(&ray_color(&scattered, world, depth - 1), |l, r| l * r);
+        if let Some((scattered, attenuation)) = hit.material.scatter(ray, &hit, rng) {
+            return attenuation
+                .zip_map(&ray_color(&scattered, world, depth - 1, rng), |l, r| l * r);
         }
         return Color::zeros();
     }
@@ -90,21 +91,21 @@ pub fn draw<W: Write>(
             main_pb.inc(1);
             let width_pb = multi_pb.add(ProgressBar::new(img_width as u64));
             width_pb.set_style(sub_pb_style.clone());
+            let mut rng = rand::thread_rng();
             (0..img_width)
                 .flat_map(|x| {
                     width_pb.inc(1);
-                    let col: Vec3 = (0..samples_per_pixel)
+                    let scale = 1.0 / samples_per_pixel as f32;
+                    (0..samples_per_pixel)
                         .map(|_| {
-                            let mut rng = rand::thread_rng();
                             let u = (x as f32 + rng.gen::<f32>()) / (img_width - 1) as f32;
                             let v = (y as f32 + rng.gen::<f32>()) / (img_height - 1) as f32;
 
-                            let ray = camera.get_ray(u, v);
-                            ray_color(&ray, &world, max_depth)
+                            let ray = camera.get_ray(u, v, &mut rng);
+                            ray_color(&ray, &world, max_depth, &mut rng)
                         })
-                        .sum();
-                    let scale = 1.0 / samples_per_pixel as f32;
-                    col.iter()
+                        .sum::<Vec3>()
+                        .iter()
                         .map(|c| (256.0 * (c * scale).sqrt().clamp(0.0, 0.999)) as u8)
                         .collect::<Vec<u8>>()
                 })
