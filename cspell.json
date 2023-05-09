@@ -13,7 +13,9 @@
     "nalgebra",
     "powi",
     "raytra",
+    "rngs",
     "schlick",
+    "Seedable",
     "simd"
   ]
 }

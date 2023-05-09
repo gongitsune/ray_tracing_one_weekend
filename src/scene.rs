@@ -1,14 +1,25 @@
 use rand::Rng;
 
 use crate::{
-    hittable::HittableList,
+    hittable::Hittable,
     materials::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal},
     vec::{random_vec, Vec3},
     Color, Sphere,
 };
 
-pub fn random_scene() -> HittableList {
-    let mut world = HittableList::default();
+#[derive(Default)]
+pub struct ModelList {
+    pub models: Vec<Box<dyn Hittable>>,
+}
+
+impl ModelList {
+    fn push(&mut self, hittable: impl Hittable + 'static) {
+        self.models.push(Box::new(hittable));
+    }
+}
+
+pub fn random_scene_models() -> ModelList {
+    let mut world = ModelList::default();
     let mut rng = rand::thread_rng();
 
     let ground_mat = Lambertian::new(Color::new(0.5, 0.5, 0.5));

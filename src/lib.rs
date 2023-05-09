@@ -4,18 +4,17 @@ mod hittable;
 mod materials;
 mod ray;
 mod scene;
-mod sphere;
 mod vec;
 
 use anyhow::{Ok, Result};
 use camera::Camera;
 use hittable::Hittable;
+use hittable::{bvh::BvhTree, sphere::Sphere};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use rand::{rngs::SmallRng, Rng, SeedableRng};
 use ray::Ray;
 use rayon::prelude::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
-use scene::random_scene;
-use sphere::Sphere;
+use scene::random_scene_models;
 use std::{
     f32::INFINITY,
     io::{BufWriter, Write},
@@ -64,7 +63,8 @@ pub fn draw<W: Write>(
     );
 
     // World
-    let world = random_scene();
+    let mut scene = random_scene_models();
+    let world = BvhTree::new(&mut scene.models);
 
     // Camera
     let look_from = Vec3::new(13.0, 2.0, 3.0);

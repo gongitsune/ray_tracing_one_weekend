@@ -156,7 +156,7 @@ impl<'a> BvhTree<'a> {
 
     fn number_hittables(&self, id: NodeId) -> usize {
         let node = &self.nodes[id.index];
-        let local_hitable = if node.hittable.is_some() { 1 } else { 0 };
+        let local_hittable = if node.hittable.is_some() { 1 } else { 0 };
         let count_left = if let Some(left_index) = node.left {
             self.number_hittables(left_index)
         } else {
@@ -168,7 +168,7 @@ impl<'a> BvhTree<'a> {
             0
         };
 
-        local_hitable + count_left + count_right
+        local_hittable + count_left + count_right
     }
 }
 

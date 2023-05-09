@@ -1,5 +1,6 @@
 pub mod aabb;
 pub mod bvh;
+pub mod sphere;
 
 use crate::{materials::Material, ray::Ray, vec::Vec3};
 
