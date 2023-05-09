@@ -11,7 +11,7 @@ use anyhow::{Ok, Result};
 use camera::Camera;
 use hittable::Hittable;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
-use rand::{rngs::ThreadRng, Rng};
+use rand::{rngs::SmallRng, Rng, SeedableRng};
 use ray::Ray;
 use rayon::prelude::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
 use scene::random_scene;
@@ -22,7 +22,7 @@ use std::{
 };
 use vec::{Color, Vec3};
 
-fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: usize, rng: &mut ThreadRng) -> Color {
+fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: usize, rng: &mut SmallRng) -> Color {
     if depth <= 0 {
         return Color::new(0.0, 0.0, 0.0);
     }
@@ -91,7 +91,7 @@ pub fn draw<W: Write>(
             main_pb.inc(1);
             let width_pb = multi_pb.add(ProgressBar::new(img_width as u64));
             width_pb.set_style(sub_pb_style.clone());
-            let mut rng = rand::thread_rng();
+            let mut rng = SmallRng::from_entropy();
             (0..img_width)
                 .flat_map(|x| {
                     width_pb.inc(1);

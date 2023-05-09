@@ -1,8 +1,8 @@
-use rand::{rngs::ThreadRng, Rng};
+use rand::{rngs::SmallRng, Rng};
 
 use crate::{ray::Ray, vec::Vec3};
 
-fn random_in_unit_disk(rng: &mut ThreadRng) -> Vec3 {
+fn random_in_unit_disk(rng: &mut SmallRng) -> Vec3 {
     let unit = Vec3::new(1.0, 1.0, 0.0);
     loop {
         let p = 2.0 * Vec3::new(rng.gen::<f32>(), rng.gen::<f32>(), 0.0) - unit;
@@ -50,7 +50,7 @@ impl Camera {
         }
     }
 
-    pub fn get_ray(&self, u: f32, v: f32, rng: &mut ThreadRng) -> Ray {
+    pub fn get_ray(&self, u: f32, v: f32, rng: &mut SmallRng) -> Ray {
         let rd = self.lens_radius * random_in_unit_disk(rng);
         let offset = self.u * rd.x + self.v * rd.y;
         Ray::new(

@@ -1,4 +1,4 @@
-use rand::rngs::ThreadRng;
+use rand::rngs::SmallRng;
 
 use crate::{hittable::HitRecord, ray::Ray, vec::Color};
 
@@ -19,7 +19,7 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn scatter(&self, ray: &Ray, hit: &HitRecord, rng: &mut ThreadRng) -> Option<(Ray, Color)> {
+    fn scatter(&self, ray: &Ray, hit: &HitRecord, rng: &mut SmallRng) -> Option<(Ray, Color)> {
         let reflected = reflect(&ray.direction().normalize(), &hit.normal);
         if reflected.dot(&hit.normal) > 0.0 {
             let scattered = Ray::new(

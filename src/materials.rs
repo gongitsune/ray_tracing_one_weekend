@@ -1,4 +1,4 @@
-use rand::rngs::ThreadRng;
+use rand::rngs::SmallRng;
 
 use crate::{
     hittable::HitRecord,
@@ -10,7 +10,7 @@ pub mod dielectric;
 pub mod lambertian;
 pub mod metal;
 
-fn random_in_unit_sphere(rng: &mut ThreadRng) -> Vec3 {
+fn random_in_unit_sphere(rng: &mut SmallRng) -> Vec3 {
     let unit = Vec3::new(1.0, 1.0, 1.0);
     loop {
         let p = 2.0 * random_vec(rng, 0.0..=1.0) - unit;
@@ -42,5 +42,5 @@ fn schlick(cosine: f32, ref_idx: f32) -> f32 {
 }
 
 pub trait Material {
-    fn scatter(&self, ray: &Ray, hit: &HitRecord, rng: &mut ThreadRng) -> Option<(Ray, Color)>;
+    fn scatter(&self, ray: &Ray, hit: &HitRecord, rng: &mut SmallRng) -> Option<(Ray, Color)>;
 }
