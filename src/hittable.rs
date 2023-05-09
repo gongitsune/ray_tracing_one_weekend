@@ -1,4 +1,9 @@
+pub mod aabb;
+pub mod bvh;
+
 use crate::{materials::Material, ray::Ray, vec::Vec3};
+
+use self::aabb::Aabb;
 
 pub struct HitRecord<'a> {
     pub point: Vec3,
@@ -9,6 +14,7 @@ pub struct HitRecord<'a> {
 
 pub trait Hittable: Sync {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
+    fn bounding_box(&self) -> Option<Aabb>;
 }
 
 #[derive(Default)]
@@ -33,5 +39,9 @@ impl Hittable for HittableList {
         });
 
         hit_anything
+    }
+
+    fn bounding_box(&self) -> Option<Aabb> {
+        todo!()
     }
 }

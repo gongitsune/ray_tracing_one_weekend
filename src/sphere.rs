@@ -1,5 +1,5 @@
 use crate::{
-    hittable::{HitRecord, Hittable},
+    hittable::{aabb::Aabb, HitRecord, Hittable},
     materials::Material,
     ray::Ray,
     vec::Vec3,
@@ -58,5 +58,12 @@ impl<M: Material + Sync> Hittable for Sphere<M> {
         }
 
         None
+    }
+
+    fn bounding_box(&self) -> Option<Aabb> {
+        Some(Aabb {
+            min: self.center - Vec3::new(self.radius, self.radius, self.radius),
+            max: self.center + Vec3::new(self.radius, self.radius, self.radius),
+        })
     }
 }
