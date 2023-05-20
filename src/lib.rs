@@ -10,20 +10,20 @@ use anyhow::{Ok, Result};
 use camera::Camera;
 use hittable::Hittable;
 use hittable::{bvh::BvhTree, sphere::Sphere};
+use image::{ImageBuffer, Rgb, RgbImage};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
+use nalgebra::Vector2;
 use rand::{rngs::SmallRng, Rng, SeedableRng};
 use ray::Ray;
-use rayon::prelude::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
+use rayon::iter::ParallelIterator;
+use rayon::prelude::{IndexedParallelIterator, IntoParallelIterator};
 use scene::random_scene_models;
-use std::{
-    f32::INFINITY,
-    io::{BufWriter, Write},
-};
+use std::f32::INFINITY;
 use vec::{Color, Vec3};
 
-fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: usize, rng: &mut SmallRng) -> Color {
+fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: u32, rng: &mut SmallRng) -> Color {
     if depth <= 0 {
-        return Color::new(0.0, 0.0, 0.0);
+        return Color::zeros();
     }
 
     if let Some(hit) = world.hit(ray, 0.001, INFINITY) {
@@ -39,13 +39,12 @@ fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: usize, rng: &mut SmallRng
     (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
 }
 
-pub fn draw<W: Write>(
-    img_height: usize,
-    img_width: usize,
-    samples_per_pixel: usize,
-    max_depth: usize,
-    writer: &mut BufWriter<W>,
-) -> Result<()> {
+pub fn draw(
+    img_height: u32,
+    img_width: u32,
+    samples_per_pixel: u32,
+    max_depth: u32,
+) -> Result<RgbImage> {
     // Image
     let aspect_ratio = img_width as f32 / img_height as f32;
 
@@ -83,7 +82,6 @@ pub fn draw<W: Write>(
 
     // Render
     multi_pb.println("✨ Generating...")?;
-    writeln!(writer, "P3\n{} {}\n255", img_width, img_height)?;
     let image = (0..img_height)
         .into_par_iter()
         .rev()
@@ -112,12 +110,22 @@ pub fn draw<W: Write>(
                 .collect::<Vec<u8>>()
         })
         .collect::<Vec<u8>>();
-    for col in image.chunks(3) {
-        writeln!(writer, "{} {} {}", col[0], col[1], col[2])?;
-    }
 
     main_pb.abandon_with_message("Generated.");
     multi_pb.println("🍻 Done!!")?;
 
-    Ok(())
+    to_png(image, Vector2::new(img_width, img_height))
+}
+
+fn to_png(pixels: Vec<u8>, size: Vector2<u32>) -> Result<RgbImage> {
+    let mut image: RgbImage = ImageBuffer::new(size.x, size.y);
+    for (i, col) in pixels.chunks(3).enumerate() {
+        image.put_pixel(
+            i as u32 % size.x,
+            i as u32 / size.x,
+            Rgb([col[0], col[1], col[2]]),
+        );
+    }
+
+    Ok(image)
 }

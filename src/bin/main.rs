@@ -1,26 +1,14 @@
-use std::{
-    fs::OpenOptions,
-    io::{BufWriter, Write},
-    path::Path,
-};
-
 use anyhow::{Ok, Result};
 use clap::Parser;
 use ray_tracing_one_weekend::{cli::Cli, draw};
+use std::path::Path;
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    let path = Path::new("image.ppm");
-    let file = OpenOptions::new()
-        .create(true)
-        .truncate(true)
-        .write(true)
-        .open(&path)?;
-    let mut writer = BufWriter::new(file);
+    let path = Path::new("image.png");
+    let image = draw(cli.height, cli.width, cli.samples, cli.depth)?;
 
-    draw(cli.height, cli.width, cli.samples, cli.depth, &mut writer)?;
-
-    writer.flush()?;
+    image.save_with_format(path, image::ImageFormat::Png)?;
     Ok(())
 }

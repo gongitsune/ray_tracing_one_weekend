@@ -7,11 +7,11 @@ use clap::Parser;
 )]
 pub struct Cli {
     #[clap(default_value = "256", help = "image width", short)]
-    pub width: usize,
+    pub width: u32,
     #[clap(default_value = "128", help = "image height", short)]
-    pub height: usize,
+    pub height: u32,
     #[clap(default_value = "500", help = "samples par pixel", short)]
-    pub samples: usize,
+    pub samples: u32,
     #[clap(default_value = "50", help = "max depth", short)]
-    pub depth: usize,
+    pub depth: u32,
 }
