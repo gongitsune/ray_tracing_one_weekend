@@ -26,9 +26,9 @@ impl<M: Material + Sync> Hittable for Sphere<M> {
         let oc = ray.origin() - self.center;
         let a = ray.direction().dot(&ray.direction());
         let b = oc.dot(&ray.direction());
-        let c = oc.dot(&oc) - self.radius.powi(2);
+        let c = oc.dot(&oc) - self.radius * self.radius;
 
-        let discriminant = b.powi(2) - a * c;
+        let discriminant = b * b - a * c;
 
         if discriminant > 0.0 {
             let sqrt_discriminant = discriminant.sqrt();

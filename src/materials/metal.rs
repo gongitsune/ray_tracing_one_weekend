@@ -19,6 +19,7 @@ impl Metal {
 }
 
 impl Material for Metal {
+    #[inline(always)]
     fn scatter(&self, ray: &Ray, hit: &HitRecord, rng: &mut SmallRng) -> Option<(Ray, Color)> {
         let reflected = reflect(&ray.direction().normalize(), &hit.normal);
         if reflected.dot(&hit.normal) > 0.0 {

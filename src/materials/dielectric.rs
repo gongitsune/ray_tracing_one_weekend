@@ -20,6 +20,7 @@ impl Dielectric {
 }
 
 impl Material for Dielectric {
+    #[inline(always)]
     fn scatter(&self, ray: &Ray, hit: &HitRecord, rng: &mut SmallRng) -> Option<(Ray, Color)> {
         let attenuation = Vec3::new(1.0, 1.0, 1.0);
         let (outward_normal, ni_over_nt, cosine) = if ray.direction().dot(&hit.normal) > 0.0 {

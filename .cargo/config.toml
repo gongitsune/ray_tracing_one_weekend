@@ -3,3 +3,8 @@ rustflags = ["-Ctarget-feature=+avx2", "-Ctarget-cpu=native"]
 
 [registries.crates-io]
 protocol = "sparse"
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+panic = "abort"

@@ -15,6 +15,7 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
+    #[inline(always)]
     fn scatter(&self, _: &Ray, hit: &HitRecord, rng: &mut SmallRng) -> Option<(Ray, Color)> {
         let target = hit.point + hit.normal + random_in_unit_sphere(rng);
         let scattered = Ray::new(hit.point, target - hit.point);
